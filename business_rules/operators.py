@@ -241,7 +241,7 @@ class SelectMultipleType(BaseType):
 
 @export_type
 class SelectPathType(BaseType):
-
+    EPSILON = Decimal('0.000001')
     name = "select_path"
 
     def _assert_valid_value_and_cast(self, value):
@@ -275,3 +275,45 @@ class SelectPathType(BaseType):
             if self._case_insensitive_equal_to(val, other_value):
                 return False
         return True
+
+    def find_single_value(self, path):
+        jsonpath_expr = parse(path)
+        values = [match.value for match in jsonpath_expr.find(self.value)]
+        final_val = values
+        if isinstance(values, list):
+            if len(values) > 0:
+                final_val = values[0]
+            else:
+                final_val = 0
+        else:
+            final_val = values
+        return final_val
+
+    @type_operator(FIELD_NUMERIC)
+    def equal_to(self, other_numeric, path):
+        fsv = self.find_single_value(path)
+        if isinstance(other_numeric, str):
+            other_numeric = float(other_numeric)
+        return abs(fsv - other_numeric) <= self.EPSILON
+
+    @type_operator(FIELD_NUMERIC)
+    def greater_than(self, other_numeric, path):
+        fsv = self.find_single_value(path)
+        if isinstance(other_numeric, str):
+            other_numeric = float(other_numeric)
+        return abs(fsv - other_numeric) > self.EPSILON
+
+    @type_operator(FIELD_NUMERIC)
+    def greater_than_or_equal_to(self, other_numeric, path):
+        return self.greater_than(other_numeric) or self.equal_to(other_numeric)
+
+    @type_operator(FIELD_NUMERIC)
+    def less_than(self, other_numeric, path):
+        fsv = self.find_single_value(path)
+        if isinstance(other_numeric, str):
+            other_numeric = float(other_numeric)
+            return (other_numeric - fsv) > self.EPSILON
+
+    @type_operator(FIELD_NUMERIC)
+    def less_than_or_equal_to(self, other_numeric, path):
+        return self.less_than(other_numeric) or self.equal_to(other_numeric)

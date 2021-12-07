@@ -9,7 +9,7 @@ description = 'Python DSL for setting up business intelligence rules that can be
 
 setuptools.setup(
     name='business-rules-harishbohara',
-    version="0.0.7",
+    version="0.0.8",
     description='{0}\n\n{1}'.format(description, history),
     author='Harish Bohara',
     author_email='harish.bohara@gmail.com',
