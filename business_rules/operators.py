@@ -7,6 +7,7 @@ from .fields import (FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
                      FIELD_SELECT, FIELD_SELECT_MULTIPLE)
 from .utils import fn_name_to_pretty_label, float_to_decimal
 from decimal import Decimal, Inexact, Context
+from jsonpath_ng import jsonpath, parse
 
 class BaseType(object):
     def __init__(self, value):
@@ -176,9 +177,22 @@ class SelectType(BaseType):
 
     @type_operator(FIELD_SELECT, assert_type_for_arguments=False)
     def contains(self, other_value):
-        for val in self.value:
-            if self._case_insensitive_equal_to(val, other_value):
-                return True
+        map_check = isinstance(self.value, dict)
+        if map_check:
+            if len(other_value.split("=")) < 2:
+                print("BR - contains cannot check with map value. Input must be $.key=value")
+                return False
+            key = other_value.split("=")[0]
+            compare_value = other_value.split("=")[1]
+            jsonpath_expr = parse(key)
+            values = [match.value for match in jsonpath_expr.find(self.value)]
+            for val in values:
+                if self._case_insensitive_equal_to(val, compare_value):
+                    return True
+        else:
+            for val in self.value:
+                if self._case_insensitive_equal_to(val, other_value):
+                    return True
         return False
 
     @type_operator(FIELD_SELECT, assert_type_for_arguments=False)
