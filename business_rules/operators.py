@@ -197,9 +197,22 @@ class SelectType(BaseType):
 
     @type_operator(FIELD_SELECT, assert_type_for_arguments=False)
     def does_not_contain(self, other_value):
-        for val in self.value:
-            if self._case_insensitive_equal_to(val, other_value):
+        map_check = isinstance(self.value, dict)
+        if map_check:
+            if len(other_value.split("=")) < 2:
+                print("BR - contains cannot check with map value. Input must be $.key=value")
                 return False
+            key = other_value.split("=")[0]
+            compare_value = other_value.split("=")[1]
+            jsonpath_expr = parse(key)
+            values = [match.value for match in jsonpath_expr.find(self.value)]
+            for val in values:
+                if self._case_insensitive_equal_to(val, compare_value):
+                    return False
+        else:
+            for val in self.value:
+                if self._case_insensitive_equal_to(val, other_value):
+                    return False
         return True
 
 
