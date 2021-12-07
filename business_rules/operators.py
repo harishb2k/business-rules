@@ -245,9 +245,8 @@ class SelectPathType(BaseType):
     name = "select_path"
 
     def _assert_valid_value_and_cast(self, value):
-        if not hasattr(value, '__iter__'):
-            raise AssertionError("{0} is not a valid select type".
-                                 format(value))
+        #if not hasattr(value, '__iter__'):
+        #    raise AssertionError("{0} is not a valid select type".format(value))
         return value
 
     @staticmethod
@@ -293,6 +292,8 @@ class SelectPathType(BaseType):
     def equal_to(self, other_numeric, path):
         fsv = self.find_single_value(path)
         if isinstance(other_numeric, str):
+            return self._case_insensitive_equal_to(fsv, other_numeric)
+        else:
             other_numeric = float(other_numeric)
         return abs(fsv - other_numeric) <= self.EPSILON
 
