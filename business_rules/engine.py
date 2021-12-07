@@ -1,4 +1,5 @@
 from .fields import FIELD_NO_INPUT
+from business_rules.operators import SelectPathType
 
 def run_all(rule_list,
             defined_variables,
@@ -50,9 +51,9 @@ def check_condition(condition, defined_variables):
     variables, values, and the comparison operator. The defined_variables
     object must have a variable defined for any variables in this condition.
     """
-    name, op, value = condition['name'], condition['operator'], condition['value']
+    name, op, value, path = condition['name'], condition['operator'], condition['value'], condition['path']
     operator_type = _get_variable_value(defined_variables, name)
-    return _do_operator_comparison(operator_type, op, value)
+    return _do_operator_comparison(operator_type, op, value, path)
 
 def _get_variable_value(defined_variables, name):
     """ Call the function provided on the defined_variables object with the
@@ -68,7 +69,7 @@ def _get_variable_value(defined_variables, name):
     val = method()
     return method.field_type(val)
 
-def _do_operator_comparison(operator_type, operator_name, comparison_value):
+def _do_operator_comparison(operator_type, operator_name, comparison_value, path):
     """ Finds the method on the given operator_type and compares it to the
     given comparison_value.
 
@@ -82,8 +83,10 @@ def _do_operator_comparison(operator_type, operator_name, comparison_value):
     method = getattr(operator_type, operator_name, fallback)
     if getattr(method, 'input_type', '') == FIELD_NO_INPUT:
         return method()
-    return method(comparison_value)
-
+    if isinstance(operator_type, SelectPathType):
+        return method(comparison_value, path)
+    else:
+        return method(comparison_value)
 
 def do_actions(actions, defined_actions):
     for action in actions:

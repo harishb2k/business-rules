@@ -9,6 +9,7 @@ from .utils import fn_name_to_pretty_label, float_to_decimal
 from decimal import Decimal, Inexact, Context
 from jsonpath_ng import jsonpath, parse
 
+
 class BaseType(object):
     def __init__(self, value):
         self.value = self._assert_valid_value_and_cast(value)
@@ -177,42 +178,16 @@ class SelectType(BaseType):
 
     @type_operator(FIELD_SELECT, assert_type_for_arguments=False)
     def contains(self, other_value):
-        map_check = isinstance(self.value, dict)
-        if map_check:
-            if len(other_value.split("=")) < 2:
-                print("BR - contains cannot check with map value. Input must be $.key=value")
-                return False
-            key = other_value.split("=")[0]
-            compare_value = other_value.split("=")[1]
-            jsonpath_expr = parse(key)
-            values = [match.value for match in jsonpath_expr.find(self.value)]
-            for val in values:
-                if self._case_insensitive_equal_to(val, compare_value):
-                    return True
-        else:
-            for val in self.value:
-                if self._case_insensitive_equal_to(val, other_value):
-                    return True
+        for val in self.value:
+            if self._case_insensitive_equal_to(val, other_value):
+                return True
         return False
 
     @type_operator(FIELD_SELECT, assert_type_for_arguments=False)
     def does_not_contain(self, other_value):
-        map_check = isinstance(self.value, dict)
-        if map_check:
-            if len(other_value.split("=")) < 2:
-                print("BR - contains cannot check with map value. Input must be $.key=value")
+        for val in self.value:
+            if self._case_insensitive_equal_to(val, other_value):
                 return False
-            key = other_value.split("=")[0]
-            compare_value = other_value.split("=")[1]
-            jsonpath_expr = parse(key)
-            values = [match.value for match in jsonpath_expr.find(self.value)]
-            for val in values:
-                if self._case_insensitive_equal_to(val, compare_value):
-                    return False
-        else:
-            for val in self.value:
-                if self._case_insensitive_equal_to(val, other_value):
-                    return False
         return True
 
 
@@ -262,3 +237,41 @@ class SelectMultipleType(BaseType):
     @type_operator(FIELD_SELECT_MULTIPLE)
     def shares_no_elements_with(self, other_value):
         return not self.shares_at_least_one_element_with(other_value)
+
+
+@export_type
+class SelectPathType(BaseType):
+
+    name = "select_path"
+
+    def _assert_valid_value_and_cast(self, value):
+        if not hasattr(value, '__iter__'):
+            raise AssertionError("{0} is not a valid select type".
+                                 format(value))
+        return value
+
+    @staticmethod
+    def _case_insensitive_equal_to(value_from_list, other_value):
+        if isinstance(value_from_list, string_types) and \
+                isinstance(other_value, string_types):
+                    return value_from_list.lower() == other_value.lower()
+        else:
+            return value_from_list == other_value
+
+    @type_operator(FIELD_SELECT, assert_type_for_arguments=False)
+    def contains(self, other_value, path):
+        jsonpath_expr = parse(path)
+        values = [match.value for match in jsonpath_expr.find(self.value)]
+        for val in values:
+            if self._case_insensitive_equal_to(val, other_value):
+                return True
+        return False
+
+    @type_operator(FIELD_SELECT, assert_type_for_arguments=False)
+    def does_not_contain(self, other_value, path):
+        jsonpath_expr = parse(path)
+        values = [match.value for match in jsonpath_expr.find(self.value)]
+        for val in values:
+            if self._case_insensitive_equal_to(val, other_value):
+                return False
+        return True

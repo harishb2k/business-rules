@@ -6,6 +6,7 @@ from .operators import (BaseType,
                         StringType,
                         BooleanType,
                         SelectType,
+                        SelectPathType,
                         SelectMultipleType)
 
 class BaseVariables(object):
@@ -59,3 +60,9 @@ def select_rule_variable(label=None, options=None):
 
 def select_multiple_rule_variable(label=None, options=None):
     return rule_variable(SelectMultipleType, label=label, options=options)
+
+def select_path_rule_variable(label=None, options=None):
+    return rule_variable(SelectType, label=label, options=options)
+
+def select_path_rule_variable(label=None, options=None):
+    return rule_variable(SelectPathType, label=label, options=options)
