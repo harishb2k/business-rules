@@ -302,7 +302,7 @@ class SelectPathType(BaseType):
         fsv = self.find_single_value(path)
         if isinstance(other_numeric, str):
             other_numeric = float(other_numeric)
-        return abs(fsv - other_numeric) > self.EPSILON
+        return (fsv - other_numeric) > self.EPSILON
 
     @type_operator(FIELD_NUMERIC)
     def greater_than_or_equal_to(self, other_numeric, path):
@@ -313,7 +313,7 @@ class SelectPathType(BaseType):
         fsv = self.find_single_value(path)
         if isinstance(other_numeric, str):
             other_numeric = float(other_numeric)
-            return (other_numeric - fsv) > self.EPSILON
+        return (other_numeric - fsv) > self.EPSILON
 
     @type_operator(FIELD_NUMERIC)
     def less_than_or_equal_to(self, other_numeric, path):
