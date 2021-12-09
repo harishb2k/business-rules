@@ -1,3 +1,9 @@
+Note: this project is a fork of https://github.com/venmo/business-rules. However, the original project did not have support for map, which is added here for an old project which is using it. Please contact author devlibxgithub@gmail.com if you need help here.
+
+
+If you want to send a patch - please bump-up the version number is setup.py also in the merge request. 
+
+
 business-rules
 ==============
 
