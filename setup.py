@@ -12,7 +12,7 @@ setuptools.setup(
     version="0.0.1",
     description='{0}\n\n{1}'.format(description, history),
     author='devlibx',
-    author_email='devlibx',
+    author_email='devlibxgithub@gmail.com',
     url='https://github.com/devlibx/business-rules',
     packages=['business_rules'],
     package_dir={"": "."},
