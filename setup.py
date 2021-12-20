@@ -9,7 +9,7 @@ description = 'Python DSL for setting up business intelligence rules that can be
 
 setuptools.setup(
     name='business-rules-devlibx',
-    version="0.0.2",
+    version="0.0.4",
     description='{0}\n\n{1}'.format(description, history),
     author='devlibx',
     author_email='devlibxgithub@gmail.com',
