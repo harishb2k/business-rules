@@ -318,3 +318,28 @@ class SelectPathType(BaseType):
     @type_operator(FIELD_NUMERIC)
     def less_than_or_equal_to(self, other_numeric, path):
         return self.less_than(other_numeric) or self.equal_to(other_numeric)
+
+    @type_operator(FIELD_TEXT)
+    def equal_to(self, other_text, path):
+        fsv = self.find_single_value(path)
+        return self._case_insensitive_equal_to(fsv, other_text)
+
+    @type_operator(FIELD_TEXT)
+    def starts_with(self, other_text, path):
+        fsv = self.find_single_value(path)
+        return fsv.startswith(other_text)
+
+    @type_operator(FIELD_TEXT)
+    def ends_with(self, other_text, path):
+        fsv = self.find_single_value(path)
+        return fsv.endswith(other_text)
+
+    @type_operator(FIELD_NO_INPUT)
+    def is_true(self, other_bool, path):
+        fsv = self.find_single_value(path)
+        return fsv and other_bool
+
+    @type_operator(FIELD_NO_INPUT)
+    def is_false(self, other_bool, path):
+        fsv = self.find_single_value(path)
+        return fsv and other_bool
